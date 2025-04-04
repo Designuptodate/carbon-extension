@@ -4,7 +4,7 @@ Plugin Name: Carbon Extension
 Plugin URI: https://themesific.com/
 Description: Carbon Extension Plugin (more functional, widgets, etc.)
 Author: Themesific
-Version: 1.0
+Version: 1.0.0
 Author URI: https://themesific.com/
 */
 if (!defined('CARBON_FUNCTIONS_PLUGIN_DIR')) {
