@@ -1,0 +1,185 @@
+<?php
+/**
+ * Add function to widgets_init that'll load our widget.
+ */
+add_action( 'widgets_init', 'bk_register_widget_social' );
+
+function bk_register_widget_social() {
+	register_widget( 'bk_widget_social' );
+}
+
+/**
+ * This class handles everything that needs to be handled with the widget:
+ * the settings, form, display, and update.  Nice!
+ *
+ */
+class bk_widget_social extends WP_Widget {
+
+	/**
+	 * Widget setup.
+	 */
+	function __construct() {
+		/* Widget settings. */
+		$widget_ops = array( 'classname' => 'atbs-widget carbon-widget-socials-1', 'description' => esc_html__('Displays Social Item.', 'carbon') );
+
+		/* Create the widget. */
+		parent::__construct( 'bk_widget_social', esc_html__('[ATBS] Widget Social', 'carbon'), $widget_ops);
+	}
+    
+	/**
+	 *display the widget on the screen.
+	 */
+	function widget( $args, $instance ) {
+		extract( $args );
+        
+        $widget_opts = array();
+        $title = $instance['title'];
+        $headingStyle = $instance['heading_style'];
+        
+        if($instance['facebook_url'] != '') :      
+            $socialItems['facebook']['url']     = $instance['facebook_url'];
+        endif;
+        if($instance['twitter_url'] != '') :      
+            $socialItems['twitter']['url']     = $instance['twitter_url'];
+        endif;
+        if($instance['youtube_url'] != '') :      
+            $socialItems['youtube']['url']     = $instance['youtube_url'];
+        endif;
+        if($instance['instagram'] != '') :      
+            $socialItems['instagram']['accesstoken']     = $instance['instagram'];
+        endif;
+        if($instance['dribbble_url'] != '') :      
+            $socialItems['dribbble']['url']     = $instance['dribbble_url'];
+        endif;
+        if($instance['pinterest_url'] != '') :      
+            $socialItems['pinterest']['url']     = $instance['pinterest_url'];
+        endif;
+        
+        if($headingStyle) {
+            $headingClass = Atbs_Core::bk_get_widget_heading_class($headingStyle);
+        }else {
+            $headingClass = '';
+        }
+        
+        echo ($before_widget);
+        echo '<div class="atbs-carbon-widget widget-wrap">';
+        if ( $title ) { echo Atbs_Widget::bk_get_widget_heading($title, $headingClass); }
+        
+        ?>
+            <div class="widget__inner">
+                <ul class="social-list social-list--md list-horizontal"> 
+                <?php
+                if ($instance['facebook_url'] != NULL) { echo ' <li><a href="'. esc_url($instance['facebook_url']) . '" target="_blank" aria-label="Facebook"><i class="mdicon mdicon-facebook"></i></a></li>'; }
+
+                if ($instance['twitter_url'] != NULL) { echo ' <li><a href="'. esc_url($instance['twitter_url']) . '" target="_blank" aria-label="Twitter"><i class="mdicon mdicon-twitter"></i></a></li>'; }
+
+                if ($instance['youtube_url'] != NULL) { echo ' <li><a href="'. esc_url($instance['youtube_url']) . '" target="_blank" aria-label="Youtube"><i class="mdicon mdicon-youtube"></i></a></li>'; }
+
+                if ($instance['instagram'] != NULL) { echo ' <li><a href="'. esc_url($instance['instagram']) . '" target="_blank" aria-label="Instagram"><i class="mdicon mdicon-instagram"></i></a></li>'; }
+
+                if ($instance['dribbble_url'] != NULL) { echo ' <li><a href="'. esc_url($instance['dribbble_url']) . '" target="_blank" aria-label="Dribbble"><i class="mdicon mdicon-dribbble"></i></a></li>'; }
+
+                if ($instance['pinterest_url'] != NULL) { echo ' <li><a href="'. esc_url($instance['pinterest_url']) . '" target="_blank" aria-label="Pinterest"><i class="mdicon mdicon-pinterest-p"></i></a></li>'; }
+                ?>                 
+                </ul>
+            </div>
+        </div><!-- .widget-wrap -->
+        <?php
+        
+        /* After widget (defined by themes). */
+		echo ($after_widget);
+	}
+	
+	/**
+	 * update widget settings
+	 */
+	function update($new_instance, $old_instance) {
+		$instance = $old_instance;
+        $instance['title']          = $new_instance['title'];
+        $instance['heading_style']  = strip_tags($new_instance['heading_style']);
+        $instance['facebook_url']   = strip_tags($new_instance['facebook_url']);
+        $instance['twitter_url']    = strip_tags($new_instance['twitter_url']);
+        $instance['youtube_url']    = strip_tags($new_instance['youtube_url']);
+        $instance['instagram']      = strip_tags($new_instance['instagram']);
+        $instance['dribbble_url']   = strip_tags($new_instance['dribbble_url']);
+        $instance['pinterest_url']  = strip_tags($new_instance['pinterest_url']);
+		return $instance;
+	}
+
+	/**
+	 * Displays the widget settings controls on the widget panel.
+	 * Make use of the get_field_id() and get_field_name() function
+	 * when creating your form elements. This handles the confusing stuff.
+	 */
+	function form( $instance ) {
+		$defaults = array(
+                        'title'             => 'Stay Connected', 
+                        'heading_style'     => 'default', 
+                        'facebook_url'      => '', 
+                        'twitter_url'       => '',
+                        'youtube_url'       => '',
+                        'instagram'         => '',
+                        'dribbble_url'      => '',
+                        'pinterest_url'     => '',
+                        );
+		$instance = wp_parse_args((array) $instance, $defaults);
+	?>
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'title' )); ?>"><strong><?php esc_html_e('[Optional] Title:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>" name="<?php echo esc_attr($this->get_field_name('title')); ?>" value="<?php if( !empty($instance['title']) ) echo esc_attr($instance['title']); ?>" />
+		</p>
+        
+        <p>
+		    <label for="<?php echo esc_attr($this->get_field_id( 'heading_style' )); ?>"><?php esc_attr_e('Heading Style:', 'carbon'); ?></label>
+		    <select class="widefat" id="<?php echo esc_attr($this->get_field_id( 'heading_style' )); ?>" name="<?php echo esc_attr($this->get_field_name( 'heading_style' )); ?>" >
+			    <option value="default" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'default' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Default - From Theme Option', 'carbon'); ?></option>
+                <option value="widget-title-style-1" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-1' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 1', 'carbon'); ?></option>
+                <option value="widget-title-style-2" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-2' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 2', 'carbon'); ?></option>
+                <option value="widget-title-style-2-center" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-2-center' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 2 Center', 'carbon'); ?></option>
+                <option value="widget-title-style-2-right" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-2-right' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 2 Right', 'carbon'); ?></option>
+                <option value="widget-title-style-3" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-3' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 3', 'carbon'); ?></option>
+                <option value="widget-title-style-4" <?php if( !empty($instance['heading_style']) && $instance['heading_style'] == 'widget-title-style-4' ) echo 'selected="selected"'; else echo ""; ?>><?php esc_attr_e('Heading Style 4', 'carbon'); ?></option>
+			</select>
+	    </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'facebook_url' )); ?>"><strong><?php esc_html_e('Facebook URL:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('facebook_url')); ?>" name="<?php echo esc_attr($this->get_field_name('facebook_url')); ?>" value="<?php if( !empty($instance['facebook_url']) ) echo esc_attr($instance['facebook_url']); ?>" />
+            <i><?php esc_attr_e('eg. https://www.facebook.com/envato','carbon') ?></i>
+        </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'twitter_url' )); ?>"><strong><?php esc_html_e('Twitter URL:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('twitter_url')); ?>" name="<?php echo esc_attr($this->get_field_name('twitter_url')); ?>" value="<?php if( !empty($instance['twitter_url']) ) echo esc_attr($instance['twitter_url']); ?>" />
+            <i><?php esc_attr_e('eg. https://www.twitter.com/envato','carbon') ?></i>
+        </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'youtube_url' )); ?>"><strong><?php esc_html_e('Youtube URL (Full URL):', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('youtube_url')); ?>" name="<?php echo esc_attr($this->get_field_name('youtube_url')); ?>" value="<?php if( !empty($instance['youtube_url']) ) echo esc_attr($instance['youtube_url']); ?>" />
+            <i><?php esc_attr_e('eg. https://www.youtube.com/user/envato','carbon') ?></i>
+        </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'instagram' )); ?>"><strong><?php esc_html_e('Instagram Url:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('instagram')); ?>" name="<?php echo esc_attr($this->get_field_name('instagram')); ?>" value="<?php if( !empty($instance['instagram']) ) echo esc_attr($instance['instagram']); ?>" />
+            <i><?php esc_attr_e('eg. https://www.instagram.com/envato/','carbon') ?></i>
+            
+        </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'dribbble_url' )); ?>"><strong><?php esc_html_e('Dribbble URL:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('dribbble_url')); ?>" name="<?php echo esc_attr($this->get_field_name('dribbble_url')); ?>" value="<?php if( !empty($instance['dribbble_url']) ) echo esc_attr($instance['dribbble_url']); ?>" />
+            <i><?php esc_attr_e('eg. https://dribbble.com/envato','carbon') ?></i>
+        </p>
+        
+        <p>
+			<label for="<?php echo esc_attr($this->get_field_id( 'pinterest_url' )); ?>"><strong><?php esc_html_e('Pinterest URL:', 'carbon'); ?></strong></label>
+			<input type="text" class="widefat" id="<?php echo esc_attr($this->get_field_id('pinterest_url')); ?>" name="<?php echo esc_attr($this->get_field_name('pinterest_url')); ?>" value="<?php if( !empty($instance['pinterest_url']) ) echo esc_attr($instance['pinterest_url']); ?>" />
+            <i><?php esc_attr_e('eg. https://pinterest.com/envato','carbon') ?></i>
+        </p>
+        
+<?php
+	}
+}
+?>
